@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="logImpl" value="LOG4J2"/>
+    </settings>
+    <!--取别名-->
+    <typeAliases>
+        <typeAlias type="com.whvcse.pojo.Customer" alias="Customer"/>
+        <typeAlias type="com.whvcse.pojo.Customervisit" alias="Customervisit"/>
+        <typeAlias type="com.whvcse.pojo.EmpCustomer" alias="EmpCustomer"/>
+        <typeAlias type="com.whvcse.pojo.Employees" alias="Employees"/>
+        <typeAlias type="com.whvcse.pojo.Permission" alias="Permission"/>
+        <typeAlias type="com.whvcse.pojo.Role" alias="Role"/>
+        <typeAlias type="com.whvcse.pojo.RoleEmp" alias="RoleEmp"/>
+        <typeAlias type="com.whvcse.pojo.RolePerm" alias="RolePerm"/>
+
+    </typeAliases>
+
+    <!-- 配置分页插件 -->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageHelper">
+            <!-- 设置数据库类型 Oracle,Mysql,MariaDB,SQLite,Hsqldb,PostgreSQL六种数据库 -->
+            <property name="dialect" value="mysql" />
+        </plugin>
+    </plugins>
+</configuration>

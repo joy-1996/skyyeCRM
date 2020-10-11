@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="testShiro:war exploded3 archive">
+    <output-path>$PROJECT_DIR$/out/artifacts/joypeng</output-path>
+    <root id="archive" name="joypeng.war">
+      <element id="artifact" artifact-name="testShiro:war exploded3" />
+    </root>
+  </artifact>
+</component>

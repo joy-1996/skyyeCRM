@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.RolePermDao">
+    <resultMap type="RolePerm" id="RolePermResult">
+        <id column="r_id"  property="r_id"/>
+        <id column="p_id" property="p_id"/>
+        <association property="role" javaType="Role">
+            <id column="rid" property="rid"/>
+            <result column="rolename" property="rolename"/>
+        </association>
+        <association property="permission" javaType="Permission">
+            <id column="pid" property="pid"/>
+            <result column="permissionurl" property="permissionurl"/>
+        </association>
+
+    </resultMap>
+    <!--删除角色已经有的权限-->
+    <delete id="deleteHasPermission">
+        delete from role_perm where r_id=#{r_id}
+    </delete>
+    <!--为角色分配权限-->
+    <insert id="addPermissionToRole" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into role_perm(r_id,p_id) values
+        <foreach collection="rolePerms" item="RolePerm" index="index" separator=",">
+            (
+            #{RolePerm.r_id},
+            #{RolePerm.p_id}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectPermissionByEmpId" resultType="RolePerm">
+        select * from role_perm where r_id=#{r_id}
+    </select>
+</mapper>

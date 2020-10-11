@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间-->
+
+<mapper namespace="com.whvcse.dao.PermissionDao">
+
+    <!--分页查询-->
+    <select id="selectAllPermissionByPage"  parameterType="Permission" resultType="Permission">
+        select pid,permission_name,permissionurl from permissions ORDER BY pid limit #{map.startIndex},#{map.pageSize}
+    </select>
+
+    <!--查询总记录数-->
+    <select id="selectTotalRecord"  resultType="Integer">
+        select count(pid) from permissions
+    </select>
+
+    <!--添加权限-->
+    <insert id="addPermission">
+        insert into permissions (permission_name,permissionurl) values(#{permission_name},#{permissionurl})
+    </insert>
+
+    <!--修改权限-->
+    <update id="updatePermission">
+        update permissions set permission_name=#{permission_name},permissionurl=#{permissionurl} where pid=#{pid}
+    </update>
+
+    <!--修改权限之前的查询-->
+    <select id="selectPermissionById" parameterType="Integer" resultType="Permission">
+        select pid,permission_name,permissionurl from permissions where pid=#{pid}
+    </select>
+
+    <!--删除权限-->
+    <delete id="deletePermissionById" >
+        delete from permissions where pid=#{pid}
+    </delete>
+
+    <!--查询所有权限-->
+    <select id="selectAllPermission" resultType="Permission">
+        select  pid,permission_name,permissionurl from permissions
+     </select>
+</mapper>

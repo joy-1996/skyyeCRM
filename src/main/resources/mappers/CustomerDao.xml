@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.CustomerDao">
+    <resultMap type="Customer" id="CustomerResult">
+        <id column="cid"  property="cid"/>
+        <id column="cusName"  property="cusName"/>
+        <id column="contact"  property="contact"/>
+        <id column="Address"  property="address"/>
+        <id column="tel"  property="tel"/>
+        <id column="email"  property="email"/>
+        <id column="eid"  property="eid"/>
+        <association property="employees" javaType="Employees">
+            <id column="empid" property="empid"/>
+            <result column="username" property="username"/>
+            <result column="name" property="name"/>
+        </association>
+    </resultMap>
+    <sql id="baseSql">cid,cusName,Address,contact,tel,email</sql>
+
+    <!--查询所有员工信息-->
+    <select id="searchAllCustomersByPage" parameterType="Customer" resultMap="CustomerResult">
+        select <include refid="baseSql"/> from customer  c  ORDER BY c.cid limit #{map.startIndex},#{map.pageSize}
+    </select>
+
+    <select id="searchAllCustomersByPageAndId" parameterType="Customer" resultMap="CustomerResult">
+        select c.*,e.username,e.empid from customer c,employee e where c.eid=e.empid and c.eid=#{eid}  ORDER BY cid limit #{map.startIndex},#{map.pageSize}
+    </select>
+    <select id="selectTotalRecordByPageAndId" resultType="Integer">
+        select count(cid) from customer c,employee e where c.eid=e.empid and e.empid=#{employees.empid}
+    </select>
+
+    <select id="selectTotalRecord" resultType="Integer">
+        select  count(cid) from customer
+    </select>
+    <insert id="insertCustomer" parameterType="Customer">
+        insert  into customer (cusName,address,contact,tel,Email,eid) values(#{cusName},#{address},#{contact},#{tel},#{email},#{eid})
+    </insert>
+   <!--查询用户信息-->
+    <select id="searchCustomerById" parameterType="Integer" resultType="Customer">
+        select <include refid="baseSql"/> from customer where cid=#{cid}
+    </select>
+    <delete id="deleteCustomerById">
+        delete  from customer where cid=#{cid}
+    </delete>
+
+   <!--修改用户信息-->
+    <update id="updateCustomer" parameterType="Customer">
+        update  customer set cusName=#{cusName},address=#{address},contact=#{contact},tel=#{tel},email=#{email} where cid=#{cid}
+    </update>
+    <!--查询所有客户信息-->
+    <select id="selectAllCustomers" resultMap="CustomerResult">
+        select <include refid="baseSql"/> from customer
+    </select>
+    <update id="transferEmployee">
+        update customer set eid=#{eid} where cid=#{cid}
+    </update>
+</mapper>

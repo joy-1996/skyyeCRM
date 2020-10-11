@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.RoleEmpDao">
+    <resultMap type="RoleEmp" id="RoleEmpResult">
+        <id column="r_id"  property="r_id"/>
+        <id column="emp_id" property="emp_id"/>
+        <association property="role" javaType="Role">
+            <id column="rid" property="rid"/>
+            <result column="rolename" property="rolename"/>
+        </association>
+
+        <association property="employees" javaType="Employees">
+            <id column="empid" property="empid"/>
+            <result column="username" property="username"/>
+            <result column="name" property="name"/>
+        </association>
+
+        <association property="permission" javaType="Permission">
+            <id column="pid" property="pid"/>
+            <result column="permissionurl" property="permissionurl"/>
+        </association>
+
+        <association property="rolePerm" javaType="RolePerm">
+            <id column="r_id" property="r_id"/>
+            <id column="p_id" property="p_id"/>
+        </association>
+
+    </resultMap>
+    <sql id="baseSql">
+        r_id,emp_id
+    </sql>
+
+    <!--查询所有员工信息-->
+    <select id="getRoles"   resultType="String">
+        select r.rolename from employee e,role r,role_emp re
+        where e.empid=re.emp_id and r.rid=re.r_id and e.username=#{employees.username}
+    </select>
+
+    <select id="getPerms" resultType="String">
+        select p.permissionurl from employee e,role_emp re,role r,role_perm rp,permissions p WHERE
+        e.empid=re.emp_id and re.r_id=r.rid and r.rid=rp.r_id and rp.p_id=p.pid and e.username=#{employees.username}
+    </select>
+
+    <!--删除用户已经有的角色-->
+    <delete id="deleteHasRole">
+        delete from role_emp where emp_id=#{emp_id}
+    </delete>
+    <!--为用户分配角色-->
+    <insert id="addRoleToEmployee" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into role_emp(emp_id,r_id) values
+        <foreach collection="roleEmps" item="RoleEmp" index="index" separator=",">
+            (
+                #{RoleEmp.emp_id},
+                #{RoleEmp.r_id}
+            )
+        </foreach>
+    </insert>
+
+    <select id="selectRoleByEmpId" resultType="RoleEmp">
+        select * from role_emp where emp_id=#{emp_id}
+    </select>
+</mapper>

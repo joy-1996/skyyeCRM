@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.CustomeVisitDao">
+    <resultMap type="CustomerVisit" id="CustomerVisitResult">
+        <id column="id"  property="id"/>
+        <id column="cid" property="cid"/>
+        <id column="empid" property="empid"/>
+        <id column="content"  property="content"/>
+        <id column="date"  property="date"/>
+
+        <association property="customer" javaType="Customer">
+                <id column="cid" property="cid"/>
+                <result column="cusName" property="cusName"/>
+        </association>
+
+        <association property="employees" javaType="Employees">
+            <id column="empid" property="empid"/>
+            <result column="username" property="username"/>
+            <result column="name" property="name"/>
+        </association>
+    </resultMap>
+    <sql id="baseSql">
+        id,cid,empid,content,date
+    </sql>
+
+    <!--查询所有员工信息-->
+    <select id="searchAllCustomersVisitByPage" parameterType="CustomerVisit" resultMap="CustomerVisitResult">
+        SELECT cv.*,c.cusName,e.username from customer c,employee e,customervisit cv where c.cid=cv.cid and e.empid=cv.empid
+        and cv.empid=#{empid} ORDER BY date limit #{map.startIndex},#{map.pageSize}
+    </select>
+
+    <select id="selectTotalRecord"  resultType="Integer">
+        SELECT count(id) from customer c,employee e,customervisit cv where c.cid=cv.cid and e.empid=cv.empid
+        and cv.empid=#{empid}
+    </select>
+
+    <insert id="insertCustomerVisit">
+        insert into customervisit (cid,empid,content,date) values(#{cid},#{empid},#{content},#{date})
+    </insert>
+
+    <select id="preUpdateCustomerVisit" resultType="CustomerVisit">
+        select <include refid="baseSql"/> from customervisit where id=#{id}
+    </select>
+
+    <!--删除拜访记录-->
+    <delete id="deleteCustomerVisitById">
+        delete from customervisit where id=#{id}
+    </delete>
+    <!--修改拜访记录-->
+    <update id="updateCustomerVisit">
+        update customervisit set cid=#{cid},empid=#{empid},content=#{content},date=#{date} where id=#{id}
+    </update>
+</mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.EmployeesDao">
+    <resultMap type="Employees" id="EmployeesResult">
+        <id column="empid"  property="empid"/>
+        <id column="username"  property="username"/>
+        <id column="password"  property="password"/>
+        <id column="tel"  property="tel"/>
+        <id column="name"  property="name"/>
+        <id column="email"  property="email"/>
+        <id column="rolename"  property="rolename"/>
+    </resultMap>
+
+    <sql id="baseSql">
+        empid,username,password,tel,name,email,rolename
+    </sql>
+
+    <!--登录-->
+    <select id="empLogin" parameterType="Employees" resultType="Employees">
+        select <include refid="baseSql"/> from employee where username=#{username}
+    </select>
+
+    <!--注册-->
+    <insert id="insertEmployee" parameterType="Employees">
+        insert  into employee(username,password,tel,name,email) values(#{username},#{password},#{tel},#{name},#{email})
+    </insert>
+
+    <!--修改密码-->
+    <update id="updatePassword" parameterType="Employees">
+        update  employee set password=#{password} where empid=#{empid}
+    </update>
+
+    <!--查询所有员工信息-->
+    <select id="searchAllEmployeesByPage" parameterType="Employees" resultMap="EmployeesResult">
+        select <include refid="baseSql"/> from employee where rolename='user'  ORDER BY empid limit #{map.startIndex},#{map.pageSize}
+    </select>
+
+    <select id="selectTotalRecord" resultType="Integer">
+        select  count(empid) from employee  where rolename='user'
+    </select>
+
+    <delete id="deleteEmployeeById">
+        delete  from employee where empid=#{empid}
+    </delete>
+
+    <!--查询用户信息-->
+    <select id="selectEmployeeById" parameterType="Integer" resultType="Employees">
+        select <include refid="baseSql"/> from employee where empid=#{empid}
+    </select>
+
+    <!--修改用户信息 ,password=#{password}-->
+    <update id="updateEmployee" parameterType="Employees">
+        update  employee set username=#{username},tel=#{tel},
+        name=#{name},email=#{email} where empid=#{empid}
+    </update>
+
+    <!--查询所有用户信息-->
+    <select id="selectAllEmployees" resultMap="EmployeesResult">
+        select <include refid="baseSql"/> from employee
+    </select>
+
+    <select id="selectOneTotalRecord"  resultType="Integer">
+        select count(empid) from employees where empid=#{empid}
+    </select>
+
+    <!--查询所有用户不包含本用户-->
+    <select id="selectNotInEmp" parameterType="Employees" resultMap="EmployeesResult">
+        select <include refid="baseSql"/> from employee where empid not in (#{empid}) and rolename not like 'admin' and rolename not like 'superadmin'
+    </select>
+
+</mapper>

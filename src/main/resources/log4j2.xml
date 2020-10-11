@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties>
+        <property name="layout">%d{yyyy-MM-dd HH:mm:ss}[%t][%-5p] - %m - [%c]%n</property>
+    </properties>
+    <!--定义所有的appenmders(输出目的地)-->
+    <appenders>
+        <!--控制台输出的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="debug"/>
+            <PatternLayout pattern="${layout}"/>
+        </Console>
+    </appenders>
+    <loggers>
+        <root level="DEBUG">
+            <appender-ref ref="Console"/>
+        </root>
+    </loggers>
+</configuration>

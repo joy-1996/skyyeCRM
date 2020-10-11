@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--扫描jdbc.properties文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--配置sqlSessionFactory工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--自动扫描mapper文件-->
+        <property name="mapperLocations" value="classpath:mappers/*.xml"/>
+    </bean>
+
+    <!--配置映射扫描文件-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="com.whvcse.dao"/>
+    </bean>
+
+    <!--配置注解扫描-->
+    <context:component-scan base-package="com.whvcse.controller"/>
+    <context:component-scan base-package="com.whvcse.service.impl"/>
+    <context:component-scan base-package="com.whvcse.pojo"/>
+
+    <!--配置视图解析器-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/jsp/"></property>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--回写json格式字符串springmvc中的配置  显示配置转换器 第二种方式-->
+    <mvc:annotation-driven/>
+
+    <!--自动识别静态资源第二种方式-->
+    <mvc:default-servlet-handler/>
+
+    <!--配置文件上传解析器，-->
+    <!--<bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="1024000"/>
+    </bean>-->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!-- override these for application-specific URLs if you like: -->
+        <property name="loginUrl" value="/tologin"/>
+        <property name="successUrl" value="/index"/>
+        <property name="unauthorizedUrl" value="/unauth"/>
+        <property name="filterChainDefinitions">
+            <value>
+                /logout = logout
+                /tologin = anon
+                /login = anon
+                /index = anon
+                /admin/** = authc
+                /user/add = authc
+                /user/** = authc
+            </value>
+        </property>
+    </bean>
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="userRealm"/>
+    </bean>
+    <bean id="userRealm" class="com.whvcse.realm.UserRealm">
+        <property name="employeesService" ref="employeesService"/>
+        <!--<property name="roleEmpService" ref="roleEmpService"/>-->
+        <property name="credentialsMatcher" ref="credentialsMatcher"/>
+        <property name="cachingEnabled" value="false"/>
+        <property name="authenticationCachingEnabled" value="false"/>
+        <property name="authorizationCachingEnabled" value="false"/>
+        <!-- <property name="authenticationCacheName" value="authenticationCache"/>-->
+        <!-- <property name="authorizationCacheName" value="authorizationCache"/>-->
+    </bean>
+    <bean id="credentialsMatcher" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+        <property name="hashAlgorithmName" value="md5"/>
+        <property name="hashIterations" value="2"/>
+    </bean>
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor">
+        <property name="proxyTargetClass" value="true"/>
+    </bean>
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+    <!--=========================-->
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="find*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="count*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="query*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="exist*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="select*" propagation="SUPPORTS" read-only="true"/>
+            <tx:method name="save*" propagation="REQUIRED"/>
+            <tx:method name="insert*"/>
+            <tx:method name="edit*"/>
+            <tx:method name="update*"/>
+            <tx:method name="delete*"/>
+            <tx:method name="remove*"/>
+            <tx:method name="*" propagation="SUPPORTS" read-only="true"/>
+        </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:pointcut id="transactionPointcut" expression="execution(* com.whvcse.service.impl.*.*(..))"/>
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="transactionPointcut"/>
+    </aop:config>
+</beans>

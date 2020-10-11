@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--命名空间-->
+<mapper namespace="com.whvcse.dao.EmpCustomerDao">
+    <resultMap type="EmpCustomer" id="EmpCustomerResult">
+        <id column="emp_id"  property="empid"/>
+        <id column="c_id" property="cid"/>
+        <association property="customer" javaType="Customer">
+            <id column="cid" property="cid"/>
+            <result column="cusName" property="cusName"/>
+        </association>
+        <association property="employees" javaType="Employees">
+            <id column="empid" property="empid"/>
+            <result column="username" property="username"/>
+            <result column="name" property="name"/>
+        </association>
+    </resultMap>
+
+    <!--查询所有员工信息-->
+    <select id="searchCusEmployee" parameterType="EmpCustomer" resultMap="EmpCustomerResult">
+        select ec.*,e.username,c.cusName  from employee e,customer c, emp_customer ec where
+         c.cid=ec.c_id and e.empid=ec.emp_id and ec.emp_id=#{empid} limit #{map.startIndex},#{map.pageSize}
+    </select>
+
+    <select id="selectTotalRecord" parameterType="Integer" resultType="Integer">
+        select count(ec.c_id)  from employee e,customer c, emp_customer ec where
+         c.cid=ec.c_id and e.empid=ec.emp_id and ec.emp_id=#{empid}
+    </select>
+    <update id="transferEmployee">
+        update emp_customer set emp_id=#{empid},c_id=#{cid} where c_id=#{cid} and emp_id=#{employees.empid}
+    </update>
+</mapper>
